@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Edit Candidate | Mitra Motor Training School{% endblock %}
+{% block extra_head %}
+<style>
+    .edit-user-shell {
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .upload-hint {
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .actions-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="card edit-user-shell">
+    <h2 class="section-title">Update Candidate</h2>
+    <p>Modify personal details or upload a new profile photo.</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="field">
+            <label for="name">Full Name</label>
+            <input id="name" type="text" name="name" value="{{ user.name }}" required>
+        </div>
+
+        <div class="field">
+            <label for="phone">Mobile Number</label>
+            <input id="phone" type="tel" name="phone" value="{{ user.phone }}" pattern="[0-9]{10}" required>
+        </div>
+
+        <div class="field">
+            <label for="image">Candidate Photo</label>
+            <input id="image" type="file" name="image" accept="image/*">
+            <span class="upload-hint">Leave empty to keep existing photo.</span>
+        </div>
+
+        <div class="actions-row">
+            <button type="submit" class="primary-btn">Save Changes</button>
+            <a href="{{ url_for('user_bp.list_users') }}" class="ghost-btn">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Add Candidate | Mitra Motor Training School{% endblock %}
+{% block extra_head %}
+<style>
+    .add-user-shell {
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    .upload-hint {
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    input[type="file"] {
+        border: 1px dashed var(--border);
+        padding: 16px;
+        border-radius: 16px;
+        background: rgba(19, 64, 116, 0.03);
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="card add-user-shell">
+    <h2 class="section-title">Add New Candidate</h2>
+    <p>Upload a square photo for the trainee card and capture their contact details.</p>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="field">
+            <label for="name">Full Name</label>
+            <input id="name" type="text" name="name" placeholder="e.g. Rajesh Mitra" required>
+        </div>
+
+        <div class="field">
+            <label for="phone">Mobile Number</label>
+            <input id="phone" type="tel" name="phone" placeholder="10-digit mobile" pattern="[0-9]{10}" required>
+        </div>
+
+        <div class="field">
+            <label for="image">Candidate Photo</label>
+            <input id="image" type="file" name="image" accept="image/*" required>
+            <span class="upload-hint">Accepted formats: JPG, JPEG, PNG • Resized automatically</span>
+        </div>
+
+        <button type="submit" class="primary-btn">Save Candidate</button>
+    </form>
+</section>
+{% endblock %}

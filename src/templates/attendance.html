@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+{% block title %}Attendance | Mitra Motor Training School{% endblock %}
+{% block extra_head %}
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --card-bg: #ffffff;
+            --primary: #134074;
+            --accent: #ff9f1c;
+            --border: #e2e8f0;
+            --text: #1f2933;
+            --muted: #6b7280;
+        }
+
+        .attendance-shell {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .title-block h1 {
+            margin: 0;
+            font-size: 28px;
+            color: var(--primary);
+        }
+
+        .title-block p {
+            margin: 4px 0 0;
+            color: var(--muted);
+        }
+
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            min-width: 220px;
+            outline: none;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .today-chip {
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(19, 64, 116, 0.1);
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+        }
+
+        .metric-card label {
+            display: block;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+        }
+
+        .metric-card strong {
+            font-size: 30px;
+            color: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            gap: 14px;
+        }
+
+        .avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 159, 28, 0.4);
+        }
+
+        .identity h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .identity span {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .detail-block {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .detail-block label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--muted);
+            letter-spacing: 0.04em;
+        }
+
+        .detail-block strong {
+            font-size: 18px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button.att-btn {
+            flex: 1;
+            min-width: 120px;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+        }
+
+        button.att-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        button.att-btn.in {
+            background: linear-gradient(120deg, var(--primary), #1d5da8);
+            color: #fff;
+        }
+
+        button.att-btn.out {
+            background: #fff4e6;
+            color: var(--accent);
+            border: 1px solid rgba(255, 159, 28, 0.4);
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .status-chip {
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(19, 64, 116, 0.08);
+            color: var(--primary);
+            font-size: 13px;
+        }
+
+        .print-link {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .time-chip {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .attendance-shell {
+                padding: 0 4px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="attendance-shell">
+    <header>
+        <div class="title-block">
+            <h1>Mitra Motor Training School</h1>
+            <p>Daily Attendance Sheet • {{ today }}</p>
+        </div>
+        <div class="tools">
+            <input type="search" id="search" class="search-input" placeholder="Search candidate by name...">
+            <span class="today-chip">{{ today }}</span>
+        </div>
+    </header>
+
+    <div class="metrics">
+        <div class="metric-card">
+            <label>Total Candidates</label>
+            <strong>{{ total_students }}</strong>
+        </div>
+        <div class="metric-card">
+            <label>Active Sessions</label>
+            <strong>{{ active_sessions }}</strong>
+        </div>
+        <div class="metric-card">
+            <label>Completed Today</label>
+            <strong>{{ completed_sessions }}</strong>
+        </div>
+    </div>
+
+    <div class="grid" id="candidateGrid">
+        {% for user in users %}
+        <article class="card" data-name="{{ (user.name ~ ' ' ~ user.phone)|lower }}">
+            <div class="card-header">
+                <img src="{{ image_url(user.image_path) }}" alt="{{ user.name }} photo" class="avatar">
+                <div class="identity">
+                    <h3>{{ user.name }}</h3>
+                    <span>{{ user.phone }}</span>
+                </div>
+            </div>
+
+            <div class="details">
+                <div class="detail-block">
+                    <label>In Time</label>
+                    <strong class="time-chip" id="in-time-{{ user.id }}">{{ user.today_in or "--:--" }}</strong>
+                </div>
+                <div class="detail-block">
+                    <label>Out Time</label>
+                    <strong class="time-chip" id="out-time-{{ user.id }}">{{ user.today_out or "--:--" }}</strong>
+                </div>
+                <div class="detail-block">
+                    <label>Classes Attended</label>
+                    <strong id="classes-{{ user.id }}">{{ user.total_classes }}</strong>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="att-btn in" onclick="markAttendance('{{ user.id }}','in', this)" id="btn-in-{{ user.id }}" {% if user.today_in %}disabled{% endif %}>Start Class</button>
+                <button class="att-btn out" onclick="markAttendance('{{ user.id }}','out', this)" id="btn-out-{{ user.id }}" {% if not user.today_in or user.today_out %}disabled{% endif %}>End Class</button>
+            </div>
+
+            <div class="status-row">
+                <span class="status-chip" id="status-{{ user.id }}">Awaiting action</span>
+                <a class="print-link" href="{{ url_for('admin_bp.admin_user_detail', user_id=user.id) }}" target="_blank">🖨 Print training history</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if not users %}
+        <p>No candidates found. Add trainees to begin marking attendance.</p>
+    {% endif %}
+</div>
+
+<script>
+const searchInput = document.getElementById('search');
+const cards = Array.from(document.querySelectorAll('#candidateGrid .card'));
+
+searchInput?.addEventListener('input', (ev) => {
+    const term = ev.target.value.trim().toLowerCase();
+    cards.forEach(card => {
+        const matches = card.dataset.name.includes(term);
+        card.style.display = matches ? 'flex' : 'none';
+    });
+});
+
+function markAttendance(userId, action, btn) {
+    const formData = new FormData();
+    formData.append('user_id', userId);
+    formData.append('action', action);
+
+    btn.disabled = true;
+    fetch('/attendance/mark', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        const statusEl = document.getElementById(`status-${userId}`);
+        if (data.status === 'success') {
+            statusEl.textContent = data.message;
+            if (data.record) {
+                if (data.record.in_time) {
+                    document.getElementById(`in-time-${userId}`).textContent = data.record.in_time;
+                    document.getElementById(`btn-in-${userId}`).disabled = true;
+                    document.getElementById(`btn-out-${userId}`).disabled = false;
+                }
+                if (data.record.out_time) {
+                    document.getElementById(`out-time-${userId}`).textContent = data.record.out_time;
+                    document.getElementById(`btn-out-${userId}`).disabled = true;
+                }
+            }
+            if (typeof data.total_classes !== 'undefined') {
+                document.getElementById(`classes-${userId}`).textContent = data.total_classes;
+            }
+        } else {
+            statusEl.textContent = data.message || 'Error';
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        document.getElementById(`status-${userId}`).textContent = 'Network error';
+        btn.disabled = false;
+    });
+}
+</script>
+{% endblock %}

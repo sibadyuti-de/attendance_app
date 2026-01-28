@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Students | Mitra Motor Training School{% endblock %}
+{% block extra_head %}
+<style>
+    .users-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .users-header h2 {
+        margin: 0;
+        font-size: 28px;
+        color: var(--primary);
+    }
+
+    .users-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .user-search {
+        min-width: 220px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        padding: 10px 16px;
+        font-size: 15px;
+    }
+
+    .users-table img {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 159, 28, 0.4);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 16px;
+        color: var(--muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="users-header">
+        <div>
+            <h2>Registered Candidates</h2>
+            <p>Manage photos, contact numbers, and attendance history.</p>
+        </div>
+        <div class="users-actions">
+            <input type="search" id="userSearch" class="user-search" placeholder="Search by name or phone">
+            <a class="primary-btn" href="{{ url_for('user_bp.add_user') }}">＋ Add Candidate</a>
+        </div>
+    </div>
+
+    {% if users %}
+    <div class="users-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Registered On</th>
+                    <th>Training Log</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr data-name="{{ (user.name ~ ' ' ~ user.phone)|lower }}">
+                    <td><img src="{{ image_url(user.image_path) }}" alt="{{ user.name }}"></td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.created_at }}</td>
+                    <td><a href="{{ url_for('admin_bp.admin_user_detail', user_id=user.id) }}" class="ghost-btn">View</a></td>
+                    <td>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <a href="{{ url_for('user_bp.edit_user', user_id=user.id) }}" class="ghost-btn">Edit</a>
+                            <form method="POST" action="{{ url_for('user_bp.delete_user', user_id=user.id) }}" onsubmit="return confirmDelete('{{ user.name }}');">
+                                <button type="submit" class="ghost-btn" style="border-color:#f43f5e; color:#f43f5e;">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No candidates yet. Start by adding your first trainee.</p>
+    </div>
+    {% endif %}
+</section>
+<script>
+const searchInput = document.getElementById('userSearch');
+const userRows = Array.from(document.querySelectorAll('.users-table tbody tr'));
+
+searchInput?.addEventListener('input', (event) => {
+    const term = event.target.value.trim().toLowerCase();
+    userRows.forEach(row => {
+        const matches = row.dataset.name.includes(term);
+        row.style.display = matches ? '' : 'none';
+    });
+});
+
+function confirmDelete(name) {
+    return confirm(`Delete candidate ${name}? This will remove all attendance logs.`);
+}
+</script>
+{% endblock %}

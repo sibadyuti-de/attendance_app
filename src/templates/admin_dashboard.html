@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | Mitra Motor Training School{% endblock %}
+{% block extra_head %}
+<style>
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .summary-card {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+        background: var(--surface);
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .summary-card img {
+        width: 80px;
+        height: 80px;
+        border-radius: 18px;
+        object-fit: cover;
+        border: 2px solid rgba(255, 159, 28, 0.45);
+    }
+
+    .summary-card h3 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--primary);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        color: var(--muted);
+    }
+
+    .summary-row strong {
+        color: var(--primary);
+    }
+
+    .dashboard-headline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .dashboard-headline h2 {
+        margin: 0;
+        font-size: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <section>
+        <div class="dashboard-headline">
+            <div>
+                <h2>Admin Dashboard</h2>
+                <p>Overview of candidate progress and attendance totals.</p>
+            </div>
+            <a href="{{ url_for('attendance_bp.attendance_page') }}" class="ghost-btn">Open Attendance Sheet</a>
+        </div>
+
+        {% if summary %}
+        <div class="summary-grid">
+            {% for row in summary %}
+            <article class="summary-card">
+                <div style="display:flex; gap:14px; align-items:center;">
+                    <img src="{{ image_url(row.image) }}" alt="{{ row.name }}">
+                    <div>
+                        <h3>{{ row.name }}</h3>
+                        <span>{{ row.phone }}</span>
+                    </div>
+                </div>
+                <div class="summary-row">
+                    <span>Total Classes</span>
+                    <strong>{{ row.total_classes }}</strong>
+                </div>
+                <a class="primary-btn" href="{{ url_for('admin_bp.admin_user_detail', user_id=row.id) }}" style="justify-content:center;">View Log →</a>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No trainees yet. Add students to see summary cards.</p>
+        {% endif %}
+    </section>
+{% endblock %}
