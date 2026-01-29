@@ -14,5 +14,4 @@ src/attendance.db
 *.db
 
 # Static assets generated or user-uploaded
-src/static/
-src/static/uploads/
+src/static/uploads/*
