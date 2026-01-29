@@ -52,7 +52,7 @@
     <div class="users-header">
         <div>
             <h2>Registered Candidates</h2>
-            <p>Manage photos, contact numbers, and attendance history.</p>
+            <p>View roster and training logs. Edit or delete candidates from the Admin Dashboard.</p>
         </div>
         <div class="users-actions">
             <input type="search" id="userSearch" class="user-search" placeholder="Search by name or phone">
@@ -70,7 +70,6 @@
                     <th>Phone</th>
                     <th>Registered On</th>
                     <th>Training Log</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,14 +80,6 @@
                     <td>{{ user.phone }}</td>
                     <td>{{ user.created_at }}</td>
                     <td><a href="{{ url_for('admin_bp.admin_user_detail', user_id=user.id) }}" class="ghost-btn">View</a></td>
-                    <td>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <a href="{{ url_for('user_bp.edit_user', user_id=user.id) }}" class="ghost-btn">Edit</a>
-                            <form method="POST" action="{{ url_for('user_bp.delete_user', user_id=user.id) }}" onsubmit="return confirmDelete('{{ user.name }}');">
-                                <button type="submit" class="ghost-btn" style="border-color:#f43f5e; color:#f43f5e;">Delete</button>
-                            </form>
-                        </div>
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -111,10 +102,6 @@ searchInput?.addEventListener('input', (event) => {
         row.style.display = matches ? '' : 'none';
     });
 });
-
-function confirmDelete(name) {
-    return confirm(`Delete candidate ${name}? This will remove all attendance logs.`);
-}
 </script>
 {% endblock %}
 

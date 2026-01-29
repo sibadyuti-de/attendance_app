@@ -8,6 +8,74 @@
         gap: 16px;
     }
 
+    .backfill-card {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 20px;
+        background: var(--surface);
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .backfill-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .backfill-form {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+    }
+
+    .backfill-form .field {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 10px 12px;
+        background: rgba(19, 64, 116, 0.03);
+    }
+
+    .field-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .pill-inputs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .pill-inputs span {
+        align-self: center;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .span-2 {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 640px) {
+        .span-2 {
+            grid-column: span 1;
+        }
+    }
+
+    .action-field {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .report-header {
         display: flex;
         justify-content: space-between;
@@ -26,52 +94,60 @@
 
     .student-strip {
         display: flex;
-        gap: 18px;
+        gap: 20px;
         align-items: center;
+        justify-content: space-between;
         flex-wrap: wrap;
         border-bottom: 1px solid var(--border);
-        padding-bottom: 16px;
+        padding-bottom: 18px;
     }
 
     .student-strip img {
-        width: 90px;
-        height: 90px;
+        width: 92px;
+        height: 92px;
         border-radius: 22px;
         object-fit: cover;
         border: 2px solid rgba(255, 159, 28, 0.4);
+        flex-shrink: 0;
     }
 
-    .student-strip h3 {
+    .student-meta {
+        flex: 1;
+        min-width: 240px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .student-meta h3 {
         margin: 0;
         font-size: 26px;
         color: var(--primary);
     }
 
-    .stats-row {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        margin-top: 16px;
+    .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
     }
 
-    .stat-card {
-        flex: 1;
-        min-width: 160px;
-        background: rgba(19, 64, 116, 0.06);
-        border-radius: 14px;
-        padding: 12px 16px;
+    .meta-box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: rgba(19, 64, 116, 0.04);
     }
 
-    .stat-card label {
+    .meta-box small {
         display: block;
         text-transform: uppercase;
-        font-size: 11px;
-        color: var(--muted);
+        font-size: 10px;
         letter-spacing: 0.08em;
+        color: var(--muted);
     }
 
-    .stat-card strong {
-        font-size: 22px;
+    .meta-box strong {
+        font-size: 16px;
         color: var(--primary);
     }
 
@@ -132,33 +208,69 @@
         </div>
     </div>
 
-    <article class="report-card printable" id="print-section">
-        <header style="text-align:center; margin-bottom:16px;">
-            <h2 style="margin:0; color:var(--primary);">Mitra Training School</h2>
-            <p style="margin:4px 0 0; letter-spacing:0.08em; text-transform:uppercase; font-weight:600;">Candidate Attendance Log</p>
-        </header>
-        <div class="student-strip">
-            <img src="{{ image_url(user.image_path) }}" alt="{{ user.name }}">
+    <div id="backfill-tool" class="backfill-card print-only-hidden">
+        <div class="backfill-head">
             <div>
-                <h3>{{ user.name }}</h3>
-                <p>Phone: {{ user.phone }}</p>
+                <h3 style="margin:0;">Backfill Attendance</h3>
+                <p style="margin-top:4px; color:var(--muted);">Quickly populate historical sessions for {{ user.name }}.</p>
             </div>
+            <small style="color:var(--muted); font-weight:600;">Skip dates already containing attendance.</small>
         </div>
 
-        <div class="stats-row">
-            <div class="stat-card">
-                <label>Total Classes</label>
-                <strong>{{ total_classes }}</strong>
+        <form class="backfill-form" method="POST" action="{{ url_for('admin_bp.generate_attendance') }}">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+
+            <div class="field span-2">
+                <span class="field-label">Date range</span>
+                <div class="pill-inputs">
+                    <input type="date" name="start_date" id="start_date" required>
+                    <input type="date" name="end_date" id="end_date" required>
+                </div>
             </div>
-            <div class="stat-card">
-                <label>Latest Session</label>
-                <strong>
-                    {% if attendance %}
-                        {{ attendance[0].date }}
-                    {% else %}
-                        --
-                    {% endif %}
-                </strong>
+
+            <div class="field span-2">
+                <span class="field-label">Time slot</span>
+                <div class="pill-inputs">
+                    <input type="time" name="time_start" id="time_start" required>
+                    <input type="time" name="time_end" id="time_end" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="total_classes" class="field-label">Total classes</label>
+                <input type="number" min="1" name="total_classes" id="total_classes" placeholder="e.g., 8" required>
+            </div>
+
+            <div class="field">
+                <label for="class_duration_hours" class="field-label">Class duration (hrs)</label>
+                <input type="number" min="0.5" step="0.25" name="class_duration_hours" id="class_duration_hours" placeholder="e.g., 2" required>
+            </div>
+
+            <div class="action-field span-2">
+                <button class="primary-btn" type="submit">Generate Attendance</button>
+            </div>
+        </form>
+    </div>
+
+    <article class="report-card printable" id="print-section">
+        <header class="print-heading" style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+            <img src="{{ url_for('static', filename='images/mitra_logo.jpeg') }}" alt="Mitra Training School logo" style="width:70px; height:70px; border-radius:18px; object-fit:cover; border:1px solid var(--border);">
+            <div>
+                <h2 style="margin:0; color:var(--primary);">Mitra Training School</h2>
+                <p style="margin:4px 0 0; letter-spacing:0.08em; text-transform:uppercase; font-weight:600;">Candidate Attendance Log</p>
+            </div>
+        </header>
+        <div class="student-strip" style="align-items:flex-start;">
+            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                <img src="{{ image_url(user.image_path) }}" alt="{{ user.name }}">
+                <div class="student-meta" style="gap:6px;">
+                    <h3>{{ user.name }}</h3>
+                    <p style="margin:4px 0 0; color:var(--muted);">Phone: {{ user.phone }}</p>
+                </div>
+            </div>
+            <div class="meta-box" style="margin-left:auto; min-width:200px;">
+                <small>Total Classes</small>
+                <strong style="font-size:22px;">{{ total_classes }}</strong>
             </div>
         </div>
 

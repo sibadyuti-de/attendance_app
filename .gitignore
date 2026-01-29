@@ -1,0 +1,18 @@
+# Bytecode caches
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+
+# Local databases
+src/attendance.db
+*.sqlite3
+*.db
+
+# Static assets generated or user-uploaded
+src/static/
+src/static/uploads/

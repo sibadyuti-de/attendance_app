@@ -2,49 +2,7 @@
 {% block title %}Admin Dashboard | Mitra Training School{% endblock %}
 {% block extra_head %}
 <style>
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 20px;
-    }
-
-    .summary-card {
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 20px;
-        background: var(--surface);
-        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .summary-card img {
-        width: 80px;
-        height: 80px;
-        border-radius: 18px;
-        object-fit: cover;
-        border: 2px solid rgba(255, 159, 28, 0.45);
-    }
-
-    .summary-card h3 {
-        margin: 0;
-        font-size: 20px;
-        color: var(--primary);
-    }
-
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        font-weight: 600;
-        color: var(--muted);
-    }
-
-    .summary-row strong {
-        color: var(--primary);
-    }
-
-    .dashboard-headline {
+    .admin-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -53,45 +11,138 @@
         margin-bottom: 24px;
     }
 
-    .dashboard-headline h2 {
+    .admin-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .admin-header h2 {
         margin: 0;
-        font-size: 30px;
+        font-size: 28px;
+        color: var(--primary);
+    }
+
+    .admin-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 15px rgba(15, 23, 42, 0.12);
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .admin-search {
+        min-width: 220px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        padding: 10px 16px;
+        font-size: 15px;
+    }
+
+    .admin-table img {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 159, 28, 0.4);
+    }
+
+    .actions-cell {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 16px;
+        color: var(--muted);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-    <section>
-        <div class="dashboard-headline">
-            <div>
+    <section class="card">
+        <div class="admin-header">
+            <div class="admin-heading">
+                <img src="{{ url_for('static', filename='images/mitra_logo.jpeg') }}" alt="Mitra Training School logo" class="admin-logo">
                 <h2>Admin Dashboard</h2>
-                <p>Overview of candidate progress and attendance totals.</p>
             </div>
-            <a href="{{ url_for('attendance_bp.attendance_page') }}" class="ghost-btn">Open Attendance Sheet</a>
+            <div class="admin-actions">
+                <input type="search" id="adminSearch" class="admin-search" placeholder="Search by name or phone">
+                <a href="{{ url_for('user_bp.add_user') }}" class="primary-btn">＋ Add Candidate</a>
+                <a href="{{ url_for('attendance_bp.attendance_page') }}" class="ghost-btn">Open Attendance Sheet</a>
+            </div>
         </div>
+
+        <p style="margin:-8px 0 24px; color:var(--muted);">Manage trainees, edit profiles, and delete accounts.</p>
 
         {% if summary %}
-        <div class="summary-grid">
-            {% for row in summary %}
-            <article class="summary-card">
-                <div style="display:flex; gap:14px; align-items:center;">
-                    <img src="{{ image_url(row.image) }}" alt="{{ row.name }}">
-                    <div>
-                        <h3>{{ row.name }}</h3>
-                        <span>{{ row.phone }}</span>
-                    </div>
-                </div>
-                <div class="summary-row">
-                    <span>Total Classes</span>
-                    <strong>{{ row.total_classes }}</strong>
-                </div>
-                <a class="primary-btn" href="{{ url_for('admin_bp.admin_user_detail', user_id=row.id) }}" style="justify-content:center;">View Log →</a>
-            </article>
-            {% endfor %}
+        <div class="admin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Registered On</th>
+                        <th>Total Classes</th>
+                        <th>Training Log</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary %}
+                    <tr data-name="{{ (row.name ~ ' ' ~ row.phone)|lower }}">
+                        <td><img src="{{ image_url(row.image) }}" alt="{{ row.name }}"></td>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.phone }}</td>
+                        <td>{{ row.created_at }}</td>
+                        <td>{{ row.total_classes }}</td>
+                        <td><a href="{{ url_for('admin_bp.admin_user_detail', user_id=row.id) }}" class="ghost-btn">View</a></td>
+                        <td>
+                            <div class="actions-cell">
+                                <a href="{{ url_for('user_bp.edit_user', user_id=row.id) }}" class="ghost-btn">Edit</a>
+                                <form method="POST" action="{{ url_for('user_bp.delete_user', user_id=row.id) }}" onsubmit="return confirmDelete('{{ row.name }}');">
+                                    <button type="submit" class="ghost-btn" style="border-color:#f43f5e; color:#f43f5e;">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% else %}
-        <p>No trainees yet. Add students to see summary cards.</p>
+        <div class="empty-state">
+            <p>No trainees yet. Add students to manage them here.</p>
+        </div>
         {% endif %}
     </section>
-{% endblock %}
 
+    <script>
+        (function () {
+            const searchInput = document.getElementById('adminSearch');
+            const rows = Array.from(document.querySelectorAll('.admin-table tbody tr'));
+
+            searchInput?.addEventListener('input', (event) => {
+                const term = event.target.value.trim().toLowerCase();
+                rows.forEach(row => {
+                    const matches = row.dataset.name.includes(term);
+                    row.style.display = matches ? '' : 'none';
+                });
+            });
+        })();
+
+        function confirmDelete(name) {
+            return confirm(`Delete candidate ${name}? This will remove all attendance logs.`);
+        }
+    </script>
+{% endblock %}
